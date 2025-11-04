@@ -6,31 +6,23 @@ import requests
 import shutil
 
 API_BASE = "https://fake-api-vycpfa6oca-uc.a.run.app"
-AUTH_TOKEN = os.getenv("AUTH_TOKEN")  # токен береться із змінної середовища
+AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 
 
 def _headers() -> dict:
-    """
-    Формує правильний заголовок для авторизації.
-    API очікує 'Authorization' без Bearer.
-    """
     if not AUTH_TOKEN:
         raise RuntimeError("AUTH_TOKEN env var is not set")
     return {"Authorization": AUTH_TOKEN}
 
 
 def _fetch_page(report_date: str, page: int) -> List[Dict[str, Any]]:
-    """
-    Завантажує одну сторінку продажів за дату.
-    Якщо сторінка не існує (404) — повертає порожній список.
-    """
     url = f"{API_BASE}/sales"
     params = {"date": report_date, "page": page}
 
     resp = requests.get(url, headers=_headers(), params=params, timeout=20)
 
     if resp.status_code == 404:
-        return []  # сторінки більше нема
+        return []
 
     resp.raise_for_status()
     data = resp.json()
@@ -38,9 +30,6 @@ def _fetch_page(report_date: str, page: int) -> List[Dict[str, Any]]:
 
 
 def _ensure_clean_dir(path: str) -> Path:
-    """
-    Створює директорію і очищає її вміст.
-    """
     p = Path(path)
     p.mkdir(parents=True, exist_ok=True)
     for child in p.iterdir():
@@ -52,12 +41,6 @@ def _ensure_clean_dir(path: str) -> Path:
 
 
 def save_sales_to_local_disk(date: str, raw_dir: str) -> dict:
-    """
-    Ідемпотентна джоба:
-    - очищає raw_dir
-    - проходить сторінки API, поки не закінчаться
-    - зберігає кожну сторінку у файлі sales_YYYY-MM-DD_N.json
-    """
     out_dir = _ensure_clean_dir(raw_dir)
 
     total_records = 0
