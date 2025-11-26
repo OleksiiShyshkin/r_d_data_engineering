@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from convert_to_avro import save_avro_from_json
+from .bll.convert_to_avro import save_avro_from_json
 
 app = Flask(__name__)
 

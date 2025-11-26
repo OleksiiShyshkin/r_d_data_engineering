@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from sales_api import save_sales_to_local_disk
+from .bll.sales_api import save_sales_to_local_disk
 
 app = Flask(__name__)
 
